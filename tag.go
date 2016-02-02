@@ -9,6 +9,6 @@ type Tag struct {
 
 type TagValue struct {
 	Name           string
-	TypeParameters []Type
+	Parameters     map[string]string
 	typeParameters []item
 }

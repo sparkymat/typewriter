@@ -84,30 +84,14 @@ func getPackages(directive string, conf *Config) ([]*Package, error) {
 			// evaluate type parameters
 			for _, tag := range tags {
 				for i, val := range tag.Values {
+					val.Parameters = make(map[string]string)
 					for _, item := range val.typeParameters {
-						tp, evalErr := pkg.Eval(item.val)
-
-						if evalErr != nil {
-							// if we're not ignoring, can return immediately, normal behavior
-							if !conf.IgnoreTypeCheckErrors {
-								return pkgs, evalErr
-							}
-
-							// is it a TypeCheckError?
-							tc, isTypeCheckError := evalErr.(*TypeCheckError)
-
-							// if not a TypeCheckError, can return immediately, normal behavior
-							if !isTypeCheckError {
-								return pkgs, evalErr
-							}
-
-							tc.ignored = conf.IgnoreTypeCheckErrors
-							tc.addPos(fset, item.pos+c.Slash)
-
-							typeCheckErrors = append(typeCheckErrors, tc)
+						words := strings.Split(item.val, "=")
+						if len(words) == 1 {
+							val.Parameters[words[0]] = ""
+						} else if len(words) == 2 {
+							val.Parameters[words[0]] = words[1]
 						}
-
-						val.TypeParameters = append(val.TypeParameters, tp)
 					}
 					tag.Values[i] = val // mutate the original
 				}
